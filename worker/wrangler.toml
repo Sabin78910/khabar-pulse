@@ -1,0 +1,12 @@
+# Khabar Pulse API (Cloudflare Workers, free plan).
+# Deployed by .github/workflows/worker.yml, which creates the KV namespace and fills in its id.
+name = "khabar-pulse-api"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[triggers]
+crons = ["*/10 * * * *"]
+
+[[kv_namespaces]]
+binding = "NEWS"
+id = "REPLACED_BY_CI"

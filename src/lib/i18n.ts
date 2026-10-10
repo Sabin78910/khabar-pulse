@@ -1,0 +1,98 @@
+import type { Category } from "../pipeline/types.ts";
+import { toNepaliDigits } from "../pipeline/text.ts";
+
+export type UiLang = "en" | "ne";
+
+const en = {
+  appName: "Khabar Pulse",
+  tagline: "Nepal and the world, in one clean feed",
+  tabs: { top: "Top", nepal: "Nepal", world: "World", business: "Business", sports: "Sports", tech: "Tech", entertainment: "Entertainment" } as Record<Category, string>,
+  briefing: "Today in 60 seconds",
+  briefingHint: "The 8 biggest stories, one swipe each",
+  close: "Close",
+  next: "Next",
+  prev: "Previous",
+  search: "Search news",
+  searchPlaceholder: "Search headlines…",
+  bookmarks: "Saved",
+  save: "Save story",
+  unsave: "Remove from saved",
+  noSaved: "Nothing saved yet. Tap the bookmark on any story to keep it here.",
+  sources: (n: number) => (n === 1 ? "1 source" : `${n} sources`),
+  coveredBy: "Covered by",
+  readAt: (s: string) => `Read at ${s}`,
+  refresh: "Refresh",
+  refreshing: "Refreshing…",
+  pullToRefresh: "Pull to refresh",
+  release: "Release to refresh",
+  updated: (s: string) => `Updated ${s}`,
+  offline: "You are offline. Showing saved news.",
+  loadError: "Could not load news. Check your connection and try again.",
+  retry: "Try again",
+  empty: "No stories here right now.",
+  noResults: (q: string) => `No stories match “${q}”.`,
+  streak: (n: number) => (n === 1 ? "1-day reading streak" : `${n}-day reading streak`),
+  streakNew: (n: number) => (n === 1 ? "Streak started. See you tomorrow!" : `${n} days in a row. Nicely done!`),
+  streakMilestone: (n: number) => `${n}-day streak! You are a regular now.`,
+  theme: "Switch theme",
+  language: "भाषा: नेपाली",
+  contentLang: "Stories in",
+  contentAll: "Both",
+  contentNe: "Nepali",
+  contentEn: "English",
+  install: "Install app",
+  legal: "Headlines and short snippets only. Every story opens on the publisher's site.",
+  privacy: "Privacy",
+  opensPublisher: "Opens on the publisher's site",
+};
+
+export type Strings = typeof en;
+
+const ne: Strings = {
+  appName: "खबर पल्स",
+  tagline: "नेपाल र विश्व, एउटै सफा फिडमा",
+  tabs: { top: "मुख्य", nepal: "नेपाल", world: "विश्व", business: "अर्थ", sports: "खेलकुद", tech: "प्रविधि", entertainment: "मनोरञ्जन" },
+  briefing: "आज ६० सेकेन्डमा",
+  briefingHint: "आजका ८ ठूला खबर, एक-एक स्वाइपमा",
+  close: "बन्द",
+  next: "अर्को",
+  prev: "अघिल्लो",
+  search: "खबर खोज्नुहोस्",
+  searchPlaceholder: "शीर्षक खोज्नुहोस्…",
+  bookmarks: "सुरक्षित",
+  save: "खबर सुरक्षित गर्नुहोस्",
+  unsave: "सुरक्षितबाट हटाउनुहोस्",
+  noSaved: "अहिलेसम्म केही सुरक्षित छैन। कुनै पनि खबरको बुकमार्क थिच्नुहोस्।",
+  sources: (n: number) => `${toNepaliDigits(n)} स्रोत`,
+  coveredBy: "समाचार दिने",
+  readAt: (s: string) => `${s} मा पढ्नुहोस्`,
+  refresh: "ताजा गर्नुहोस्",
+  refreshing: "ताजा गर्दै…",
+  pullToRefresh: "ताजा गर्न तान्नुहोस्",
+  release: "छोड्नुहोस्",
+  updated: (s: string) => `अपडेट: ${s}`,
+  offline: "तपाईं अफलाइन हुनुहुन्छ। सुरक्षित खबर देखाइँदै।",
+  loadError: "खबर लोड हुन सकेन। इन्टरनेट जाँचेर फेरि प्रयास गर्नुहोस्।",
+  retry: "फेरि प्रयास",
+  empty: "अहिले यहाँ कुनै खबर छैन।",
+  noResults: (q: string) => `“${q}” सँग मिल्ने खबर भेटिएन।`,
+  streak: (n: number) => `${toNepaliDigits(n)} दिनको पढाइ लय`,
+  streakNew: (n: number) => (n === 1 ? "लय सुरु भयो। भोलि भेटौँला!" : `लगातार ${toNepaliDigits(n)} दिन। स्याबास!`),
+  streakMilestone: (n: number) => `${toNepaliDigits(n)} दिनको लय! तपाईं नियमित पाठक हुनुभयो।`,
+  theme: "थिम बदल्नुहोस्",
+  language: "Language: English",
+  contentLang: "खबरको भाषा",
+  contentAll: "दुवै",
+  contentNe: "नेपाली",
+  contentEn: "अंग्रेजी",
+  install: "एप इन्स्टल गर्नुहोस्",
+  legal: "शीर्षक र छोटो अंश मात्र। हरेक खबर प्रकाशककै साइटमा खुल्छ।",
+  privacy: "गोपनीयता",
+  opensPublisher: "प्रकाशकको साइटमा खुल्छ",
+};
+
+export const STRINGS: Record<UiLang, Strings> = { en, ne };
+
+export function t(lang: UiLang): Strings {
+  return STRINGS[lang];
+}
