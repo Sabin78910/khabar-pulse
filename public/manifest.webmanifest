@@ -1,0 +1,17 @@
+{
+  "name": "Khabar Pulse · खबर पल्स",
+  "short_name": "Khabar Pulse",
+  "description": "Fast, clean Nepal and world news. Duplicate stories merged, every source credited.",
+  "lang": "ne",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0B0B0F",
+  "theme_color": "#0B0B0F",
+  "categories": ["news"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

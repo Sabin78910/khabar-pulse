@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+worker/.wrangler/
+worker/node_modules/
+public/news.json
+*.keystore
+*.jks

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ne" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Khabar Pulse: fast, clean Nepal and world news from many outlets, with duplicate stories merged and every source credited." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#0B0B0F" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>Khabar Pulse · खबर पल्स</title>
+    <script>
+      try {
+        var t = localStorage.getItem("kp.theme");
+        t = t ? JSON.parse(t) : matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Khabar Pulse</string>
+    <string name="title_activity_main">Khabar Pulse</string>
+    <string name="package_name">com.sabinkhanal.khabarpulse</string>
+    <string name="custom_url_scheme">com.sabinkhanal.khabarpulse</string>
+</resources>
