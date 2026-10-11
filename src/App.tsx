@@ -5,7 +5,7 @@ import { isPayload, loadNews, newsEndpoints } from "./lib/api.ts";
 import { parseBookmarks, toggleBookmark, type Bookmark } from "./lib/bookmarks.ts";
 import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
 import { pickBriefing } from "./lib/briefing.ts";
-import { t, type UiLang } from "./lib/i18n.ts";
+import { sourceProfile, t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
 import { KEYS, readJson, writeJson } from "./lib/storage.ts";
 import { EMPTY_STREAK, liveStreak, parseStreak, recordRead, type Streak } from "./lib/streak.ts";
@@ -105,6 +105,11 @@ export default function App() {
   const sourceName = useMemo(() => {
     const m = new Map((payload?.sources ?? []).map((x) => [x.id, lang === "ne" && x.nameNe ? x.nameNe : x.name]));
     return (id: string) => m.get(id) ?? id;
+  }, [payload, lang]);
+
+  const profileOf = useMemo(() => {
+    const m = new Map((payload?.sources ?? []).map((x) => [x.id, x]));
+    return (id: string) => sourceProfile(m.get(id), lang);
   }, [payload, lang]);
 
   const visible = useMemo(
@@ -349,6 +354,7 @@ export default function App() {
                     lang={lang}
                     s={s}
                     sourceName={sourceName}
+                    profileOf={profileOf}
                     saved={savedIds.has(c.id)}
                     onOpen={onOpen}
                     onToggleSave={onToggleSave}

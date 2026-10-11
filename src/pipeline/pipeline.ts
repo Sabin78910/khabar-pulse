@@ -98,7 +98,7 @@ export function buildNews(feeds: FeedResult[], sources: Source[], opts: BuildOpt
     version: 1,
     generatedAt: now,
     clusters,
-    sources: sources.map(({ id, name, nameNe, site, lang, region, topic }) => ({ id, name, nameNe, site, lang, region, topic })),
+    sources: sources.map(({ id, name, nameNe, site, lang, region, topic, owner, country }) => ({ id, name, nameNe, site, lang, region, topic, owner, country })),
     failed,
   };
 }

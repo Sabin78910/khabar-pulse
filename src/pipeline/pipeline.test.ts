@@ -205,7 +205,7 @@ describe("pipeline", () => {
     `<item><title>${title}</title><link>${link}</link><description>About ${title}</description><pubDate>${date}</pubDate></item>`;
 
   it("builds ranked clusters from several feeds and reports failures", () => {
-    const sources = [src({ id: "a", name: "A" }), src({ id: "b", name: "B" }), src({ id: "c", name: "C" })];
+    const sources = [src({ id: "a", name: "A", owner: "public-service", country: "GB" }), src({ id: "b", name: "B" }), src({ id: "c", name: "C" })];
     const payload = buildNews(
       [
         { source: sources[0], xml: rss(item("Gagan Thapa elected Nepali Congress president", "https://a.example/1") + item("Old", "https://a.example/old", "Mon, 05 Oct 2026 10:00:00 GMT")) },
@@ -219,6 +219,7 @@ describe("pipeline", () => {
     expect(payload.clusters[0].items).toHaveLength(2);
     expect(payload.clusters).toHaveLength(2); // "Old" is outside the window
     expect(payload.sources.map((s) => s.id)).toEqual(["a", "b", "c"]);
+    expect(payload.sources[0]).toMatchObject({ owner: "public-service", country: "GB" });
   });
 
   it("fetches with bounded concurrency and never throws", async () => {

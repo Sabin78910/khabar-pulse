@@ -9,8 +9,8 @@ const payload: NewsPayload = {
   generatedAt: now,
   failed: [],
   sources: [
-    { id: "kp", name: "The Kathmandu Post", site: "https://kathmandupost.com", lang: "en", region: "nepal", topic: "general" },
-    { id: "ok", name: "Onlinekhabar English", site: "https://english.onlinekhabar.com", lang: "en", region: "nepal", topic: "general" },
+    { id: "kp", name: "The Kathmandu Post", owner: "private", country: "NP", site: "https://kathmandupost.com", lang: "en", region: "nepal", topic: "general" },
+    { id: "ok", name: "Onlinekhabar English", owner: "private", country: "NP", site: "https://english.onlinekhabar.com", lang: "en", region: "nepal", topic: "general" },
   ],
   clusters: [
     {
@@ -62,6 +62,14 @@ describe("App", () => {
     const chip = screen.getByRole("button", { name: /2 sources/ });
     await userEvent.click(chip);
     expect(screen.getByText("Onlinekhabar English")).toBeInTheDocument();
+  });
+
+  it("labels each outlet with owner and country, and cautions on single-source stories", async () => {
+    render(<App />);
+    await screen.findByText("Premier League result");
+    await userEvent.click(screen.getByRole("button", { name: /2 sources/ }));
+    expect(screen.getAllByText("Private · Nepal")).toHaveLength(2);
+    expect(screen.getAllByText("Only one source so far")).toHaveLength(1);
   });
 
   it("filters by tab and opens the publisher in a new tab, starting a streak", async () => {
