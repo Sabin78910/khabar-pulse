@@ -89,4 +89,17 @@ describe("App", () => {
     render(<App />);
     expect(await screen.findByText(/Could not load news/)).toBeInTheDocument();
   });
+
+  it("hides a source from the feed and remembers the choice", async () => {
+    render(<App />);
+    await screen.findByText("Premier League result");
+    await userEvent.click(screen.getByRole("button", { name: "Sources" }));
+    expect(screen.getByRole("heading", { name: "English" })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("switch", { name: "The Kathmandu Post" }));
+    expect(JSON.parse(localStorage.getItem("kp.hiddenSources") ?? "[]")).toEqual(["kp"]);
+    await userEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.queryByText("Premier League result")).not.toBeInTheDocument();
+    // The shared story survives, led by the remaining outlet.
+    expect(screen.getByText("Congress elects Thapa")).toBeInTheDocument();
+  });
 });

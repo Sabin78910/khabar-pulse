@@ -23,4 +23,5 @@ export const KEYS = {
   bookmarks: "kp.bookmarks",
   streak: "kp.streak",
   news: "kp.news",
+  hiddenSources: "kp.hiddenSources",
 } as const;

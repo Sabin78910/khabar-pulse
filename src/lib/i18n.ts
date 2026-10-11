@@ -44,6 +44,11 @@ const en = {
   legal: "Headlines and short snippets only. Every story opens on the publisher's site.",
   privacy: "Privacy",
   opensPublisher: "Opens on the publisher's site",
+  sourcesTitle: "Sources",
+  sourcesHint: "Turn off outlets you do not want to see.",
+  groupNe: "Nepali",
+  groupEn: "English",
+  groupWorld: "World",
 };
 
 export type Strings = typeof en;
@@ -89,6 +94,11 @@ const ne: Strings = {
   legal: "शीर्षक र छोटो अंश मात्र। हरेक खबर प्रकाशककै साइटमा खुल्छ।",
   privacy: "गोपनीयता",
   opensPublisher: "प्रकाशकको साइटमा खुल्छ",
+  sourcesTitle: "स्रोतहरू",
+  sourcesHint: "नचाहिने स्रोत बन्द गर्नुहोस्।",
+  groupNe: "नेपाली",
+  groupEn: "अंग्रेजी",
+  groupWorld: "विश्व",
 };
 
 export const STRINGS: Record<UiLang, Strings> = { en, ne };
