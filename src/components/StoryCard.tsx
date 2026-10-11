@@ -10,6 +10,8 @@ interface Props {
   lang: UiLang;
   s: Strings;
   sourceName: (id: string) => string;
+  /** Owner and country label for an outlet, "" when unknown. */
+  profileOf: (id: string) => string;
   saved: boolean;
   onOpen: (url: string) => void;
   onToggleSave: (c: Cluster) => void;
@@ -30,7 +32,7 @@ export function BookmarkIcon({ filled }: { filled: boolean }) {
 }
 
 /** One story: headline, short snippet, thumbnail, source + time, and every outlet that covered it. */
-export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, onOpen, onToggleSave }: Props) {
+export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, profileOf, saved, onOpen, onToggleSave }: Props) {
   const [showSources, setShowSources] = useState(false);
   const outlets = [...new Set(c.items.map((i) => sourceName(i.sourceId)))];
   const [imgOk, setImgOk] = useState(true);
@@ -74,7 +76,7 @@ export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, o
             {s.sources(outlets.length)}
           </button>
         ) : (
-          <span className="chip chip--quiet">{s.sources(1)}</span>
+          <span className="chip chip--quiet chip--caution">{s.singleSource}</span>
         )}
         <button
           type="button"
@@ -101,6 +103,7 @@ export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, o
                 }}
               >
                 <span className="sources__name">{sourceName(it.sourceId)}</span>
+                {profileOf(it.sourceId) && <span className="sources__profile">{profileOf(it.sourceId)}</span>}
                 <span className="sources__title">{it.title}</span>
                 <span className="sources__time">{relativeTime(it.publishedAt, now, lang)}</span>
               </a>

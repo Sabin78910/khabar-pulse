@@ -1,4 +1,4 @@
-import type { Category } from "../pipeline/types.ts";
+import type { Category, Owner } from "../pipeline/types.ts";
 import { toNepaliDigits } from "../pipeline/text.ts";
 
 export type UiLang = "en" | "ne";
@@ -20,6 +20,8 @@ const en = {
   noSaved: "Nothing saved yet. Tap the bookmark on any story to keep it here.",
   sources: (n: number) => (n === 1 ? "1 source" : `${n} sources`),
   coveredBy: "Covered by",
+  singleSource: "Only one source so far",
+  owners: { private: "Private", "public-service": "Public service", state: "State-owned" } as Record<Owner, string>,
   readAt: (s: string) => `Read at ${s}`,
   refresh: "Refresh",
   refreshing: "Refreshing…",
@@ -65,6 +67,8 @@ const ne: Strings = {
   noSaved: "अहिलेसम्म केही सुरक्षित छैन। कुनै पनि खबरको बुकमार्क थिच्नुहोस्।",
   sources: (n: number) => `${toNepaliDigits(n)} स्रोत`,
   coveredBy: "समाचार दिने",
+  singleSource: "अहिलेसम्म एउटै स्रोत",
+  owners: { private: "निजी", "public-service": "सार्वजनिक सेवा", state: "सरकारी स्वामित्व" } as Record<Owner, string>,
   readAt: (s: string) => `${s} मा पढ्नुहोस्`,
   refresh: "ताजा गर्नुहोस्",
   refreshing: "ताजा गर्दै…",
@@ -95,4 +99,21 @@ export const STRINGS: Record<UiLang, Strings> = { en, ne };
 
 export function t(lang: UiLang): Strings {
   return STRINGS[lang];
+}
+
+/** "Private · Nepal": the ownership type and country of an outlet, or "" when neither is known. */
+export function sourceProfile(info: { owner?: Owner; country?: string } | undefined, lang: UiLang): string {
+  if (!info) return "";
+  const parts: string[] = [];
+  if (info.owner) parts.push(STRINGS[lang].owners[info.owner]);
+  if (info.country) {
+    let name = info.country;
+    try {
+      name = new Intl.DisplayNames([lang], { type: "region" }).of(info.country) ?? name;
+    } catch {
+      /* keep the code */
+    }
+    parts.push(name);
+  }
+  return parts.join(" · ");
 }

@@ -6,6 +6,9 @@ export type Category = "top" | "nepal" | "world" | "business" | "sports" | "tech
 
 export const CATEGORIES: readonly Category[] = ["top", "nepal", "world", "business", "sports", "tech", "entertainment"];
 
+/** Who owns and funds an outlet. A verifiable fact, not an opinion. */
+export type Owner = "private" | "public-service" | "state";
+
 export interface Source {
   id: string;
   name: string;
@@ -16,6 +19,10 @@ export interface Source {
   lang: Lang;
   region: Region;
   topic: Topic;
+  /** Ownership type of the outlet. */
+  owner?: Owner;
+  /** ISO 3166-1 alpha-2 code of the country the outlet is based in. */
+  country?: string;
 }
 
 /** One entry as read from a feed, before cleaning. */
@@ -78,6 +85,8 @@ export interface SourceInfo {
   lang: Lang;
   region: Region;
   topic: Topic;
+  owner?: Owner;
+  country?: string;
 }
 
 export interface NewsPayload {
