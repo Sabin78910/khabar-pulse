@@ -1,3 +1,4 @@
+import { applySourcePrefs, parseHiddenSources } from "./prefs.ts";
 import { isPayload, loadNews, newsEndpoints, PAGES_NEWS_URL } from "./api.ts";
 import { isBookmarked, MAX_BOOKMARKS, parseBookmarks, toggleBookmark } from "./bookmarks.ts";
 import { pickBriefing, secondsPerCard } from "./briefing.ts";
@@ -190,5 +191,49 @@ describe("i18n and safety", () => {
     expect(safeUrl("https://ok.example/a")).toBe("https://ok.example/a");
     expect(safeUrl("javascript:alert(1)")).toBeNull();
     expect(safeUrl("not a url")).toBeNull();
+  });
+});
+
+describe("applySourcePrefs", () => {
+  const item = (sourceId: string, at: number) => ({ sourceId, title: `T ${sourceId}`, url: `https://${sourceId}.example/a`, publishedAt: at });
+  const multi = cluster("m", {
+    sourceId: "a",
+    title: "T a",
+    url: "https://a.example/a",
+    updatedAt: 300,
+    firstAt: 100,
+    items: [item("a", 300), item("b", 200), item("c", 100)],
+  });
+
+  it("returns the same clusters when nothing is hidden", () => {
+    const list = [multi];
+    expect(applySourcePrefs(list, new Set())).toBe(list);
+  });
+
+  it("re-picks the lead from the remaining items", () => {
+    const [out] = applySourcePrefs([multi], new Set(["a"]));
+    expect(out.sourceId).toBe("b");
+    expect(out.title).toBe("T b");
+    expect(out.url).toBe("https://b.example/a");
+    expect(out.updatedAt).toBe(200);
+    expect(out.firstAt).toBe(100);
+    expect(out.items.map((i) => i.sourceId)).toEqual(["b", "c"]);
+  });
+
+  it("keeps the lead when a non-lead source is hidden", () => {
+    const [out] = applySourcePrefs([multi], new Set(["b"]));
+    expect(out.sourceId).toBe("a");
+    expect(out.items.map((i) => i.sourceId)).toEqual(["a", "c"]);
+  });
+
+  it("drops clusters left empty and ignores unknown ids", () => {
+    const single = cluster("s", { items: [item("a", 1)] });
+    expect(applySourcePrefs([single], new Set(["a", "zzz"]))).toEqual([]);
+    expect(applySourcePrefs([multi], new Set(["zzz"]))[0].items).toHaveLength(3);
+  });
+
+  it("parses stored hidden ids defensively", () => {
+    expect([...parseHiddenSources(["a", 3, "b"])]).toEqual(["a", "b"]);
+    expect(parseHiddenSources("x").size).toBe(0);
   });
 });

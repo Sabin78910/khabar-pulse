@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Briefing } from "./components/Briefing.tsx";
+import { SourcesSheet } from "./components/SourcesSheet.tsx";
 import { BookmarkIcon, StoryCard, StorySkeleton } from "./components/StoryCard.tsx";
 import { isPayload, loadNews, newsEndpoints } from "./lib/api.ts";
 import { parseBookmarks, toggleBookmark, type Bookmark } from "./lib/bookmarks.ts";
@@ -7,6 +8,7 @@ import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
 import { pickBriefing } from "./lib/briefing.ts";
 import { t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
+import { applySourcePrefs, parseHiddenSources } from "./lib/prefs.ts";
 import { KEYS, readJson, writeJson } from "./lib/storage.ts";
 import { EMPTY_STREAK, liveStreak, parseStreak, recordRead, type Streak } from "./lib/streak.ts";
 import { dayKey, relativeTime } from "./lib/time.ts";
@@ -45,6 +47,8 @@ export default function App() {
   const [streak, setStreak] = useState<Streak>(() => readJson(KEYS.streak, parseStreak, EMPTY_STREAK));
   const [toast, setToast] = useState<{ text: string; big: boolean } | null>(null);
   const [briefingOpen, setBriefingOpen] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [hidden, setHidden] = useState<Set<string>>(() => readJson(KEYS.hiddenSources, parseHiddenSources, new Set<string>()));
   const [now, setNow] = useState(() => Date.now());
   const [pull, setPull] = useState(0);
   const pullStart = useRef<number | null>(null);
@@ -63,6 +67,7 @@ export default function App() {
   useEffect(() => writeJson(KEYS.contentLang, contentLang), [contentLang]);
   useEffect(() => writeJson(KEYS.bookmarks, bookmarks), [bookmarks]);
   useEffect(() => writeJson(KEYS.streak, streak), [streak]);
+  useEffect(() => writeJson(KEYS.hiddenSources, [...hidden]), [hidden]);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
@@ -107,13 +112,18 @@ export default function App() {
     return (id: string) => m.get(id) ?? id;
   }, [payload, lang]);
 
-  const visible = useMemo(
-    () => filterClusters(payload?.clusters ?? [], { cat, lang: contentLang, q: query }),
-    [payload, cat, contentLang, query],
-  );
-  const briefing = useMemo(
-    () => pickBriefing(filterClusters(payload?.clusters ?? [], { cat: "top", lang: contentLang })),
-    [payload, contentLang],
+  const clusters = useMemo(() => applySourcePrefs(payload?.clusters ?? [], hidden), [payload, hidden]);
+  const visible = useMemo(() => filterClusters(clusters, { cat, lang: contentLang, q: query }), [clusters, cat, contentLang, query]);
+  const briefing = useMemo(() => pickBriefing(filterClusters(clusters, { cat: "top", lang: contentLang })), [clusters, contentLang]);
+  const closeSources = useCallback(() => setSourcesOpen(false), []);
+  const onToggleSource = useCallback(
+    (id: string) =>
+      setHidden((h) => {
+        const n = new Set(h);
+        if (!n.delete(id)) n.add(id);
+        return n;
+      }),
+    [],
   );
   const savedIds = useMemo(() => new Set(bookmarks.map((b) => b.id)), [bookmarks]);
 
@@ -210,6 +220,13 @@ export default function App() {
               onClick={() => setView((v) => (v === "saved" ? "feed" : "saved"))}
             >
               <BookmarkIcon filled={view === "saved"} />
+            </button>
+            <button type="button" className={`icon-btn${hidden.size > 0 ? " is-on" : ""}`} aria-label={s.sourcesTitle} title={s.sourcesTitle} aria-haspopup="dialog" onClick={() => setSourcesOpen(true)}>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <circle cx="16" cy="7" r="2.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                <circle cx="8" cy="17" r="2.5" fill="none" stroke="currentColor" strokeWidth="2" />
+              </svg>
             </button>
             <button type="button" className="icon-btn icon-btn--text" aria-label={s.language} title={s.language} onClick={() => setLang(lang === "ne" ? "en" : "ne")}>
               {lang === "ne" ? "EN" : "ने"}
@@ -389,6 +406,10 @@ export default function App() {
           </svg>
           {toast.text}
         </div>
+      )}
+
+      {sourcesOpen && payload && (
+        <SourcesSheet sources={payload.sources} hidden={hidden} lang={lang} s={s} onToggle={onToggleSource} onClose={closeSources} />
       )}
 
       {briefingOpen && (
