@@ -1,30 +1,39 @@
 # Khabar Pulse
-Purpose: fast, clean Nepal + world news PWA/Android app. RSS feeds → clustered stories ("N sources") → link out to publishers.
+Nepal and world news from 37 sources, with the same story merged across outlets.
+
+## Stack
+React 19 · TypeScript (strict) · Vite · Vitest · ESLint. Installable PWA with offline support.
+Design: ink and paper, Nepal crimson #DC143C accent, Fraunces headlines, Noto Sans Devanagari.
 
 ## Commands
-- Test: `npm test`
-- Lint: `npm run lint && npm run typecheck` (typecheck covers the app and `worker/`)
-- Build: `npm run build`
-- Fresh news locally: `npm run news` (writes public/news.json from the live feeds)
+- Dev: `npm run dev` · Build: `npm run build`
+- Test: `npm test` · Lint: `npm run lint && npm run typecheck`
 
 ## Architecture
-- `src/config/sources.ts` — feed list (language, region, topic). Verify a feed with curl before adding it.
-- `src/pipeline/` — pure TS, shared by the Worker, the Node fallback and the app: xml → rss → normalize → categorize → cluster → rank → pipeline (filter).
-- `src/lib/` — Bikram Sambat dates, relative time, streak, bookmarks, briefing, i18n, news loading.
-- `src/App.tsx`, `src/components/` — UI. `public/sw.js` — offline cache.
-- `worker/` — Cloudflare Worker: cron every 10 min → KV → `/api/news?cat=&lang=&q=`.
-- `scripts/build-news.ts` — same pipeline in Node; `deploy.yml` publishes news.json with Pages every 30 min.
-- `android/` — Capacitor project (appId com.sabinkhanal.khabarpulse); `android.yml` builds the AAB.
+- `src/pipeline/` fetch, parse, dedupe and cluster · `src/config/sources.ts` the feed list
+- `worker/` 10 minute Cloudflare refresh; `deploy.yml` rebuilds news.json every 30 minutes as a fallback.
 
-## Rules
-- Read only the files you need; do not scan the whole repo.
-- Every behavior change needs a test. Run tests and lint before finishing.
-- Legal: show only headline, ≤200-char snippet, thumbnail, source name and time. Never store or show full articles. Always link to the publisher and credit every outlet.
-- No new dependencies, permissions, or signing/secrets changes without asking.
-- Never commit secrets, keystores, .env files.
-- Keep PRs under ~300 changed lines; one issue per PR.
-- Be concise: diffs plus a 3-line summary.
-- If tests still fail after 3 attempts, stop and report the blocker.
+## Data rules
+- Show only headline, short snippet, thumbnail and source, then link out to the publisher. Never copy an
+  article. Credit every outlet in a cluster.
+- Verify a feed with curl before adding it to sources.ts.
+- Cross-device sync uses the shared Sabin Labs ID: the sync code in localStorage key `sabin-labs-sync-code`,
+  shared by every app on sabin78910.github.io. Never log it or send it anywhere but sync-api.
 
-## Definition of done
-Lint clean, tests pass, CI green, short summary, PR opened as draft.
+## Testing rules
+- Every behaviour change needs a test. Pure logic in `src/*.ts` is unit-tested; components get the
+  behaviour test, not the markup. Run lint, typecheck and tests before finishing.
+
+## Frontend rules
+- Keep the existing design system, dark-first with a working light theme. Editorial layouts, not dashboard
+  grids. Respect `prefers-reduced-motion`, keep AA contrast and 44px targets.
+- Self-host fonts with @fontsource; a Google Fonts link blocks first paint and costs ~2s on mobile.
+- Keep gzipped JS under ~180KB and Lighthouse mobile performance at 90+.
+
+## Security and git
+- Never commit secrets, keystores, .env files or email addresses.
+- Keep the Content-Security-Policy strict; add a host to connect-src only when a feature needs it.
+- `main` is protected: branch, open a PR, merge when CI is green. One issue per PR, under ~300 lines.
+
+## Done when
+Lint clean, tests pass, CI green, PR opened with a three line summary.
