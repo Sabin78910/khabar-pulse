@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Cluster } from "../pipeline/types.ts";
 import type { Strings, UiLang } from "../lib/i18n.ts";
+import { summarizeCluster } from "../lib/summary.ts";
 import { relativeTime } from "../lib/time.ts";
 
 interface Props {
@@ -33,6 +34,7 @@ export function BookmarkIcon({ filled }: { filled: boolean }) {
 export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, onOpen, onToggleSave }: Props) {
   const [showSources, setShowSources] = useState(false);
   const outlets = [...new Set(c.items.map((i) => sourceName(i.sourceId)))];
+  const summary = outlets.length >= 3 ? summarizeCluster(c) : "";
   const [imgOk, setImgOk] = useState(true);
   return (
     <article className={`story${lead ? " story--lead" : ""}`} lang={c.lang}>
@@ -107,6 +109,12 @@ export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, o
             </li>
           ))}
         </ul>
+      )}
+      {summary && (
+        <div className="story__summary">
+          <p className="story__summary-label">{s.summaryLabel}</p>
+          <p lang={c.lang}>{summary}</p>
+        </div>
       )}
     </article>
   );
