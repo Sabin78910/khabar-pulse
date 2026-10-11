@@ -4,6 +4,8 @@ import { BookmarkIcon, StoryCard, StorySkeleton } from "./components/StoryCard.t
 import { isPayload, loadNews, newsEndpoints } from "./lib/api.ts";
 import { parseBookmarks, toggleBookmark, type Bookmark } from "./lib/bookmarks.ts";
 import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
+import { detectBreaking, parseAlertLog, recordAlerts, EMPTY_LOG } from "./lib/breaking.ts";
+import { notificationsSupported, showBreaking } from "./lib/notify.ts";
 import { pickBriefing } from "./lib/briefing.ts";
 import { t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
@@ -45,6 +47,12 @@ export default function App() {
   const [streak, setStreak] = useState<Streak>(() => readJson(KEYS.streak, parseStreak, EMPTY_STREAK));
   const [toast, setToast] = useState<{ text: string; big: boolean } | null>(null);
   const [briefingOpen, setBriefingOpen] = useState(false);
+  const [alertsOn, setAlertsOn] = useState(() => readJson(KEYS.alerts, (v) => v === true, false) && notificationsSupported() && Notification.permission === "granted");
+  const alertsRef = useRef(alertsOn);
+  alertsRef.current = alertsOn;
+  const langRef = useRef(lang);
+  langRef.current = lang;
+  const payloadRef = useRef(payload);
   const [now, setNow] = useState(() => Date.now());
   const [pull, setPull] = useState(0);
   const pullStart = useRef<number | null>(null);
@@ -63,13 +71,24 @@ export default function App() {
   useEffect(() => writeJson(KEYS.contentLang, contentLang), [contentLang]);
   useEffect(() => writeJson(KEYS.bookmarks, bookmarks), [bookmarks]);
   useEffect(() => writeJson(KEYS.streak, streak), [streak]);
+  useEffect(() => writeJson(KEYS.alerts, alertsOn), [alertsOn]);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
     try {
       const { payload: p } = await loadNews(newsEndpoints(import.meta.env.VITE_API_URL, isNative()), fetch);
+      const prev = payloadRef.current;
+      payloadRef.current = p;
       setPayload(p);
       setStatus("ready");
+      if (alertsRef.current && prev && notificationsSupported() && Notification.permission === "granted") {
+        const log = readJson(KEYS.alertLog, parseAlertLog, EMPTY_LOG);
+        const fresh = detectBreaking(prev.clusters, p.clusters, Date.now(), log);
+        if (fresh.length > 0) {
+          writeJson(KEYS.alertLog, recordAlerts(log, fresh.map((c) => c.id), Date.now()));
+          void navigator.serviceWorker.ready.then((reg) => showBreaking(reg, fresh, t(langRef.current))).catch(() => undefined);
+        }
+      }
       writeJson(KEYS.news, p);
     } catch {
       setStatus((st) => (st === "ready" ? "ready" : "error"));
@@ -127,6 +146,14 @@ export default function App() {
     },
     [streak, lang],
   );
+
+  const onToggleAlerts = useCallback(async () => {
+    if (alertsOn) return setAlertsOn(false);
+    if (!notificationsSupported()) return;
+    const perm = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission;
+    if (perm === "granted") setAlertsOn(true);
+    else setToast({ text: s.alertsBlocked, big: false });
+  }, [alertsOn, s]);
 
   const onToggleSave = useCallback((c: Cluster) => setBookmarks((list) => toggleBookmark(list, c, Date.now())), []);
 
@@ -214,6 +241,20 @@ export default function App() {
             <button type="button" className="icon-btn icon-btn--text" aria-label={s.language} title={s.language} onClick={() => setLang(lang === "ne" ? "en" : "ne")}>
               {lang === "ne" ? "EN" : "ने"}
             </button>
+            {notificationsSupported() && (
+              <button
+                type="button"
+                className={`icon-btn${alertsOn ? " is-on" : ""}`}
+                aria-label={alertsOn ? s.alertsOn : s.alertsOff}
+                title={alertsOn ? s.alertsOn : s.alertsOff}
+                aria-pressed={alertsOn}
+                onClick={() => void onToggleAlerts()}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                  <path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15L6 17Zm4 4h4" fill={alertsOn ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
             <button type="button" className="icon-btn" aria-label={s.theme} title={s.theme} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
               {theme === "dark" ? (
                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">

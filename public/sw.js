@@ -70,3 +70,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(networkFirst(req, SHELL_CACHE));
   }
 });
+
+// Breaking-news notifications: tapping one opens the publisher's article.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data && event.notification.data.url;
+  if (typeof url !== "string" || !/^https?:\/\//.test(url)) return;
+  event.waitUntil(self.clients.openWindow(url));
+});
