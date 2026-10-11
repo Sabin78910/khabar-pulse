@@ -23,4 +23,6 @@ export const KEYS = {
   bookmarks: "kp.bookmarks",
   streak: "kp.streak",
   news: "kp.news",
+  alerts: "kp.alerts",
+  alertLog: "kp.alertLog",
 } as const;
