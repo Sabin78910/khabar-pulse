@@ -5,6 +5,7 @@ import { isPayload, loadNews, newsEndpoints } from "./lib/api.ts";
 import { parseBookmarks, toggleBookmark, type Bookmark } from "./lib/bookmarks.ts";
 import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
 import { pickBriefing } from "./lib/briefing.ts";
+import { trendingTopics } from "./lib/trending.ts";
 import { t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
 import { KEYS, readJson, writeJson } from "./lib/storage.ts";
@@ -115,6 +116,7 @@ export default function App() {
     () => pickBriefing(filterClusters(payload?.clusters ?? [], { cat: "top", lang: contentLang })),
     [payload, contentLang],
   );
+  const trending = useMemo(() => trendingTopics(filterClusters(payload?.clusters ?? [], { cat: "top", lang: contentLang }), now, 8), [payload, contentLang, now]);
   const savedIds = useMemo(() => new Set(bookmarks.map((b) => b.id)), [bookmarks]);
 
   const onOpen = useCallback(
@@ -248,6 +250,24 @@ export default function App() {
               </button>
             ))}
           </nav>
+        )}
+        {view === "feed" && cat === "top" && trending.length > 0 && (
+          <div className="trending" role="group" aria-label={s.trending}>
+            <span className="trending__label">{s.trending}</span>
+            {trending.map((term) => (
+              <button
+                key={term}
+                type="button"
+                className="trending__chip"
+                onClick={() => {
+                  setSearchOpen(true);
+                  setQuery(term);
+                }}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
         )}
       </header>
 
