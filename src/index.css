@@ -877,3 +877,33 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+.trending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -16px;
+  padding: 8px 16px;
+}
+.trending::-webkit-scrollbar {
+  display: none;
+}
+.trending__label {
+  flex: none;
+  color: var(--crimson);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.trending__chip {
+  flex: none;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border, currentColor);
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
