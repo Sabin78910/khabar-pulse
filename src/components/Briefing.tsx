@@ -3,6 +3,7 @@ import type { Cluster } from "../pipeline/types.ts";
 import type { Strings, UiLang } from "../lib/i18n.ts";
 import { toNepaliDigits } from "../pipeline/text.ts";
 import { relativeTime } from "../lib/time.ts";
+import { ShareIcon } from "./StoryCard.tsx";
 
 interface Props {
   stories: Cluster[];
@@ -11,11 +12,12 @@ interface Props {
   s: Strings;
   sourceName: (id: string) => string;
   onOpen: (url: string) => void;
+  onShare: (c: Cluster) => void;
   onClose: () => void;
 }
 
 /** "Today in 60 seconds": full-screen swipeable cards (scroll-snap), with dots and arrow keys. */
-export function Briefing({ stories, now, lang, s, sourceName, onOpen, onClose }: Props) {
+export function Briefing({ stories, now, lang, s, sourceName, onOpen, onShare, onClose }: Props) {
   const track = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
   const [index, setIndex] = useState(0);
@@ -91,6 +93,9 @@ export function Briefing({ stories, now, lang, s, sourceName, onOpen, onClose }:
               {c.snippet && <p className="briefing__snippet">{c.snippet}</p>}
               <button type="button" className="btn btn--primary" onClick={() => onOpen(c.url)}>
                 {s.readAt(sourceName(c.sourceId))} ↗
+              </button>
+              <button type="button" className="icon-btn" aria-label={s.share} title={s.share} onClick={() => onShare(c)}>
+                <ShareIcon />
               </button>
             </div>
           </section>

@@ -84,6 +84,16 @@ describe("App", () => {
     await waitFor(() => expect(document.documentElement.lang).toBe("ne"));
   });
 
+  it("copies title and publisher link when the browser cannot share, with a toast", async () => {
+    const writeText = vi.fn(async () => {});
+    vi.stubGlobal("navigator", { onLine: true, clipboard: { writeText } });
+    render(<App />);
+    await screen.findByText("Premier League result");
+    await userEvent.click(screen.getAllByRole("button", { name: "Share story" })[1]);
+    expect(writeText).toHaveBeenCalledWith("Premier League result\nhttps://example.com/c\nvia Khabar Pulse");
+    expect(await screen.findByRole("status")).toHaveTextContent("Link copied");
+  });
+
   it("shows an error with retry when news cannot load", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("x", { status: 500 })));
     render(<App />);

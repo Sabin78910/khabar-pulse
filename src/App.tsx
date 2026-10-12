@@ -7,6 +7,7 @@ import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
 import { pickBriefing } from "./lib/briefing.ts";
 import { t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
+import { browserShareEnv, shareStory } from "./lib/share.ts";
 import { KEYS, readJson, writeJson } from "./lib/storage.ts";
 import { EMPTY_STREAK, liveStreak, parseStreak, recordRead, type Streak } from "./lib/streak.ts";
 import { dayKey, relativeTime } from "./lib/time.ts";
@@ -129,6 +130,15 @@ export default function App() {
   );
 
   const onToggleSave = useCallback((c: Cluster) => setBookmarks((list) => toggleBookmark(list, c, Date.now())), []);
+
+  const onShare = useCallback(
+    async (c: Cluster) => {
+      const res = await shareStory(c, lang, browserShareEnv());
+      if (res === "copied") setToast({ text: t(lang).copied, big: false });
+      else if (res === "failed") setToast({ text: t(lang).shareFailed, big: false });
+    },
+    [lang],
+  );
 
   const today = now;
   const bs = bsFromTimestamp(today);
@@ -352,6 +362,7 @@ export default function App() {
                     saved={savedIds.has(c.id)}
                     onOpen={onOpen}
                     onToggleSave={onToggleSave}
+                    onShare={onShare}
                   />
                 ))}
               </div>
@@ -392,7 +403,7 @@ export default function App() {
       )}
 
       {briefingOpen && (
-        <Briefing stories={briefing} now={now} lang={lang} s={s} sourceName={sourceName} onOpen={onOpen} onClose={() => setBriefingOpen(false)} />
+        <Briefing stories={briefing} now={now} lang={lang} s={s} sourceName={sourceName} onOpen={onOpen} onShare={onShare} onClose={() => setBriefingOpen(false)} />
       )}
     </div>
   );
