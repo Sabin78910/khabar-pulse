@@ -877,3 +877,69 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+.forex {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.forex__table {
+  width: 100%;
+  margin-bottom: 12px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.forex__table th,
+.forex__table td {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  font-weight: 400;
+}
+.forex__table th:first-child {
+  text-align: left;
+}
+.forex__code {
+  font-weight: 600;
+}
+.forex__table small,
+.forex__result small,
+.forex__source {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.forex__convert h3 {
+  margin: 16px 0 8px;
+  font-size: 1rem;
+}
+.forex__fields {
+  display: flex;
+  gap: 12px;
+}
+.forex__fields label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.forex__fields input,
+.forex__fields select {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+}
+.forex__result {
+  margin: 12px 0 4px;
+}
+.forex__result strong {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+}

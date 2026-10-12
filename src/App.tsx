@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Briefing } from "./components/Briefing.tsx";
+import { ForexCard } from "./components/ForexCard.tsx";
 import { BookmarkIcon, StoryCard, StorySkeleton } from "./components/StoryCard.tsx";
 import { isPayload, loadNews, newsEndpoints } from "./lib/api.ts";
 import { parseBookmarks, toggleBookmark, type Bookmark } from "./lib/bookmarks.ts";
 import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
+import { loadForex, parseStoredForex, type ForexDay } from "./lib/forex.ts";
 import { pickBriefing } from "./lib/briefing.ts";
 import { t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
@@ -21,6 +23,8 @@ type Status = "loading" | "ready" | "error";
 
 const PULL_TRIGGER = 72;
 
+const nepalDay = (ms: number) => new Date(ms + (5 * 60 + 45) * 60_000).toISOString().slice(0, 10);
+
 function initialTheme(): Theme {
   const saved = readJson<Theme | null>(KEYS.theme, (v) => (v === "light" || v === "dark" ? v : null), null);
   if (saved) return saved;
@@ -34,6 +38,7 @@ export default function App() {
   );
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const [payload, setPayload] = useState<NewsPayload | null>(() => readJson(KEYS.news, (v) => (isPayload(v) ? v : null), null));
+  const [forex, setForex] = useState<ForexDay | null>(() => readJson(KEYS.forex, parseStoredForex, null));
   const [status, setStatus] = useState<Status>(payload ? "ready" : "loading");
   const [refreshing, setRefreshing] = useState(false);
   const [offline, setOffline] = useState(() => typeof navigator !== "undefined" && navigator.onLine === false);
@@ -77,6 +82,15 @@ export default function App() {
       setRefreshing(false);
       setNow(Date.now());
     }
+  }, []);
+
+  useEffect(() => {
+    loadForex(Date.now(), fetch)
+      .then((d) => {
+        setForex(d);
+        writeJson(KEYS.forex, d);
+      })
+      .catch(() => undefined); // keep showing the cached rates
   }, []);
 
   useEffect(() => {
@@ -306,6 +320,8 @@ export default function App() {
                 <span>{refreshing ? s.refreshing : updatedLabel || s.refresh}</span>
               </button>
             </div>
+
+            {cat === "top" && !query && forex && <ForexCard day={forex} lang={lang} s={s} stale={forex.date !== nepalDay(now)} />}
 
             {cat === "top" && !query && status === "ready" && briefing.length > 0 && (
               <button type="button" className="briefing-cta" onClick={() => setBriefingOpen(true)}>
