@@ -37,4 +37,11 @@ npm test && npm run lint && npm run typecheck && npm run build
 Capacitor wraps the web build (`com.sabinkhanal.khabarpulse`). `Android CI` builds a release AAB with JDK 21 and signs
 it when `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` exist. Play listing text: `store/`.
 
+## Sync across devices (optional)
+Footer → **Sync across devices** keeps saved stories and the reading streak in step across your devices.
+Data is end-to-end encrypted in the browser (AES-GCM); the server stores only ciphertext. The sync code is the
+only key: it lives in this device's localStorage (`sabin-labs-sync-code`), is never logged, and is never sent
+anywhere. Anyone with the code can read your synced data, so keep it private. Turning sync off forgets the code
+on that device only. Backend: https://github.com/Sabin78910/sync-api
+
 Privacy: https://sabin78910.github.io/privacy-policy/ · License: MIT

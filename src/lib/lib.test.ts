@@ -192,3 +192,12 @@ describe("i18n and safety", () => {
     expect(safeUrl("not a url")).toBeNull();
   });
 });
+
+describe("streak read days", () => {
+  it("records each read day once", () => {
+    let s = recordRead(EMPTY_STREAK, "2026-10-10").streak;
+    s = recordRead(s, "2026-10-10").streak;
+    s = recordRead(s, "2026-10-11").streak;
+    expect(s.days).toEqual(["2026-10-10", "2026-10-11"]);
+  });
+});

@@ -90,3 +90,68 @@ describe("App", () => {
     expect(await screen.findByText(/Could not load news/)).toBeInTheDocument();
   });
 });
+
+describe("sync across devices", () => {
+  // A fake sync server: stores whatever ciphertext is PUT and returns it on GET.
+  function stubServer() {
+    let doc: { version: number; data: string } | null = null;
+    const puts: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init?: RequestInit) => {
+        if (!String(url).includes("/v1/spaces/")) return new Response(JSON.stringify(payload));
+        if (init?.method === "PUT") {
+          const body = JSON.parse(String(init.body));
+          puts.push(body.data);
+          doc = { version: (doc?.version ?? 0) + 1, data: body.data };
+          return new Response(JSON.stringify({ version: doc.version }));
+        }
+        return doc ? new Response(JSON.stringify(doc)) : new Response("{}", { status: 404 });
+      }),
+    );
+    return { puts };
+  }
+
+  it("turns on, shows a code, and syncs only ciphertext under the khabar-pulse app id", async () => {
+    const server = stubServer();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(await screen.findByRole("button", { name: "Sync across devices" }));
+    await user.click(screen.getByRole("button", { name: "Turn on" }));
+    const code = (screen.getByLabelText("Your sync code") as HTMLInputElement).value;
+    expect(code).toMatch(/^SS1-/);
+    expect(localStorage.getItem("sabin-labs-sync-code")).toBe(code);
+    await waitFor(() => expect(server.puts).toHaveLength(1));
+    expect(server.puts[0]).not.toContain("kathmandupost");
+    const calls = (fetch as unknown as { mock: { calls: [string][] } }).mock.calls.map((c) => String(c[0]));
+    expect(calls.some((u) => u.endsWith("/khabar-pulse"))).toBe(true);
+    expect(await screen.findByRole("button", { name: /Synced · / })).toBeInTheDocument();
+  });
+
+  it("rejects an invalid pasted code and forgets the code when turned off", async () => {
+    stubServer();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(await screen.findByRole("button", { name: "Sync across devices" }));
+    await user.type(screen.getByLabelText("Paste sync code"), "nope");
+    await user.click(screen.getByRole("button", { name: "Use code" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("not a valid sync code");
+    expect(localStorage.getItem("sabin-labs-sync-code")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Turn on" }));
+    await user.click(screen.getByRole("button", { name: "Turn off" }));
+    expect(localStorage.getItem("sabin-labs-sync-code")).toBeNull();
+  });
+
+  it("keeps working and shows Error with retry when the server fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => (String(url).includes("/v1/spaces/") ? new Response("{}", { status: 500 }) : new Response(JSON.stringify(payload)))),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(await screen.findByRole("button", { name: "Sync across devices" }));
+    await user.click(screen.getByRole("button", { name: "Turn on" }));
+    expect(await screen.findByRole("button", { name: /Sync error · Retry/ })).toBeInTheDocument();
+  });
+});

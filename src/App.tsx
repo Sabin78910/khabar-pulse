@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Briefing } from "./components/Briefing.tsx";
+import { SyncSheet } from "./components/SyncSheet.tsx";
 import { BookmarkIcon, StoryCard, StorySkeleton } from "./components/StoryCard.tsx";
 import { isPayload, loadNews, newsEndpoints } from "./lib/api.ts";
 import { parseBookmarks, toggleBookmark, type Bookmark } from "./lib/bookmarks.ts";
@@ -7,6 +8,8 @@ import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
 import { pickBriefing } from "./lib/briefing.ts";
 import { t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
+import { mergeDocs, parseRemoved, type SyncDoc } from "./lib/syncMerge.ts";
+import { useSync } from "./lib/useSync.ts";
 import { KEYS, readJson, writeJson } from "./lib/storage.ts";
 import { EMPTY_STREAK, liveStreak, parseStreak, recordRead, type Streak } from "./lib/streak.ts";
 import { dayKey, relativeTime } from "./lib/time.ts";
@@ -43,6 +46,8 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => readJson(KEYS.bookmarks, parseBookmarks, []));
   const [streak, setStreak] = useState<Streak>(() => readJson(KEYS.streak, parseStreak, EMPTY_STREAK));
+  const [removed, setRemoved] = useState<Record<string, number>>(() => readJson(KEYS.removed, parseRemoved, {}));
+  const [syncOpen, setSyncOpen] = useState(false);
   const [toast, setToast] = useState<{ text: string; big: boolean } | null>(null);
   const [briefingOpen, setBriefingOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -63,6 +68,18 @@ export default function App() {
   useEffect(() => writeJson(KEYS.contentLang, contentLang), [contentLang]);
   useEffect(() => writeJson(KEYS.bookmarks, bookmarks), [bookmarks]);
   useEffect(() => writeJson(KEYS.streak, streak), [streak]);
+  useEffect(() => writeJson(KEYS.removed, removed), [removed]);
+
+  const syncDoc = useMemo<SyncDoc>(() => ({ bookmarks, removed, streak }), [bookmarks, removed, streak]);
+  const latestDoc = useRef(syncDoc);
+  latestDoc.current = syncDoc;
+  const sync = useSync(syncDoc, (remote) => {
+    // Merge again with whatever changed while the request was in flight.
+    const m = mergeDocs(latestDoc.current, remote);
+    setBookmarks(m.bookmarks);
+    setRemoved(m.removed);
+    setStreak(m.streak);
+  });
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
@@ -128,7 +145,18 @@ export default function App() {
     [streak, lang],
   );
 
-  const onToggleSave = useCallback((c: Cluster) => setBookmarks((list) => toggleBookmark(list, c, Date.now())), []);
+  const onToggleSave = useCallback(
+    (c: Cluster) => {
+      const gone = bookmarks.find((b) => b.id === c.id);
+      if (gone) setRemoved((r) => ({ ...r, [gone.url]: Date.now() }));
+      setBookmarks((list) => toggleBookmark(list, c, Date.now()));
+    },
+    [bookmarks],
+  );
+  const onUnsave = useCallback((b: Bookmark) => {
+    setRemoved((r) => ({ ...r, [b.url]: Date.now() }));
+    setBookmarks((l) => l.filter((x) => x.id !== b.id));
+  }, []);
 
   const today = now;
   const bs = bsFromTimestamp(today);
@@ -281,7 +309,7 @@ export default function App() {
                       </span>
                       <span className="saved__title">{b.title}</span>
                     </a>
-                    <button type="button" className="icon-btn is-on" aria-label={s.unsave} onClick={() => setBookmarks((l) => l.filter((x) => x.id !== b.id))}>
+                    <button type="button" className="icon-btn is-on" aria-label={s.unsave} onClick={() => onUnsave(b)}>
                       <BookmarkIcon filled />
                     </button>
                   </li>
@@ -363,6 +391,25 @@ export default function App() {
       <footer className="footer">
         <p>{s.legal}</p>
         <p>
+          <button type="button" className="btn" onClick={() => setSyncOpen(true)}>
+            {s.syncOpen}
+          </button>{" "}
+          {sync.code && (
+            <button
+              type="button"
+              className="sync-chip"
+              data-status={sync.status}
+              onClick={() => (sync.status === "error" ? void sync.syncNow() : setSyncOpen(true))}
+            >
+              {sync.status === "synced" && sync.syncedAt !== null
+                ? s.syncSynced(relativeTime(sync.syncedAt, now, lang))
+                : sync.status === "offline"
+                  ? s.syncOffline
+                  : sync.status === "error"
+                    ? `${s.syncError} · ${s.syncRetry}`
+                    : s.syncing}
+            </button>
+          )}{" "}
           {canInstall && (
             <button type="button" className="btn" onClick={() => void install()}>
               {s.install}
@@ -389,6 +436,19 @@ export default function App() {
           </svg>
           {toast.text}
         </div>
+      )}
+
+      {syncOpen && (
+        <SyncSheet
+          s={s}
+          code={sync.code}
+          status={sync.status}
+          onTurnOn={sync.turnOn}
+          onUseCode={sync.useCode}
+          onSyncNow={() => void sync.syncNow()}
+          onTurnOff={sync.turnOff}
+          onClose={() => setSyncOpen(false)}
+        />
       )}
 
       {briefingOpen && (
