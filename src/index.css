@@ -528,6 +528,10 @@ a {
   padding: 0 6px 6px 14px;
 }
 
+.story__icons {
+  display: flex;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;

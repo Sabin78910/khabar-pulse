@@ -13,6 +13,15 @@ interface Props {
   saved: boolean;
   onOpen: (url: string) => void;
   onToggleSave: (c: Cluster) => void;
+  onShare: (c: Cluster) => void;
+}
+
+export function ShareIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
 export function BookmarkIcon({ filled }: { filled: boolean }) {
@@ -30,7 +39,7 @@ export function BookmarkIcon({ filled }: { filled: boolean }) {
 }
 
 /** One story: headline, short snippet, thumbnail, source + time, and every outlet that covered it. */
-export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, onOpen, onToggleSave }: Props) {
+export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, onOpen, onToggleSave, onShare }: Props) {
   const [showSources, setShowSources] = useState(false);
   const outlets = [...new Set(c.items.map((i) => sourceName(i.sourceId)))];
   const [imgOk, setImgOk] = useState(true);
@@ -76,6 +85,10 @@ export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, o
         ) : (
           <span className="chip chip--quiet">{s.sources(1)}</span>
         )}
+        <span className="story__icons">
+        <button type="button" className="icon-btn" aria-label={s.share} title={s.share} onClick={() => onShare(c)}>
+          <ShareIcon />
+        </button>
         <button
           type="button"
           className={`icon-btn${saved ? " is-on" : ""}`}
@@ -86,6 +99,7 @@ export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, o
         >
           <BookmarkIcon filled={saved} />
         </button>
+        </span>
       </div>
       {showSources && (
         <ul className="sources" aria-label={s.coveredBy}>
