@@ -1,10 +1,10 @@
 export type Lang = "ne" | "en";
 export type Region = "nepal" | "world";
-export type Topic = "general" | "business" | "sports" | "tech" | "entertainment";
+export type Topic = "general" | "business" | "sports" | "tech" | "ai" | "entertainment";
 /** The app tabs. `top` is everything, `nepal`/`world` filter by region, the rest by topic. */
-export type Category = "top" | "nepal" | "world" | "business" | "sports" | "tech" | "entertainment";
+export type Category = "top" | "nepal" | "world" | "ai" | "business" | "sports" | "tech" | "entertainment";
 
-export const CATEGORIES: readonly Category[] = ["top", "nepal", "world", "business", "sports", "tech", "entertainment"];
+export const CATEGORIES: readonly Category[] = ["top", "nepal", "world", "ai", "business", "sports", "tech", "entertainment"];
 
 export interface Source {
   id: string;

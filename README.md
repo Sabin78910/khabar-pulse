@@ -1,6 +1,6 @@
 # Khabar Pulse · खबर पल्स
 
-Fast, clean, trustworthy Nepal and world news. One feed from 37 outlets, with the same story from several
+Fast, clean, trustworthy Nepal and world news. One feed from 44 outlets, with the same story from several
 outlets merged into one card that says **"N sources"** and lists every outlet.
 
 **Live:** https://sabin78910.github.io/khabar-pulse/

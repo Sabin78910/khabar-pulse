@@ -2,7 +2,7 @@ import { clusterArticles } from "./cluster.ts";
 import { canonicalUrl, dedupe, normalizeItem } from "./normalize.ts";
 import { outletLookup, rankClusters, toCluster } from "./rank.ts";
 import { parseFeed } from "./rss.ts";
-import type { Article, Category, Cluster, Lang, NewsPayload, Source } from "./types.ts";
+import { CATEGORIES, type Article, type Category, type Cluster, type Lang, type NewsPayload, type Source } from "./types.ts";
 
 export interface FeedResult {
   source: Source;
@@ -141,8 +141,7 @@ export function filterClusters(clusters: Cluster[], f: Filter): Cluster[] {
 }
 
 export function parseCategory(v: string | null | undefined): Category {
-  const all: Category[] = ["top", "nepal", "world", "business", "sports", "tech", "entertainment"];
-  return all.includes(v as Category) ? (v as Category) : "top";
+  return CATEGORIES.includes(v as Category) ? (v as Category) : "top";
 }
 
 export function parseLang(v: string | null | undefined): Lang | "all" {

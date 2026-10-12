@@ -1,5 +1,5 @@
 # Khabar Pulse
-Nepal and world news from 37 sources, with the same story merged across outlets.
+Nepal and world news from 44 sources, with the same story merged across outlets.
 
 ## Stack
 React 19 · TypeScript (strict) · Vite · Vitest · ESLint. Installable PWA with offline support.
