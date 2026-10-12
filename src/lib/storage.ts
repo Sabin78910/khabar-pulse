@@ -22,5 +22,6 @@ export const KEYS = {
   theme: "kp.theme",
   bookmarks: "kp.bookmarks",
   streak: "kp.streak",
+  removed: "kp.removed",
   news: "kp.news",
 } as const;
