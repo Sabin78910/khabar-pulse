@@ -4,4 +4,6 @@
     <string name="title_activity_main">Khabar Pulse</string>
     <string name="package_name">com.sabinkhanal.khabarpulse</string>
     <string name="custom_url_scheme">com.sabinkhanal.khabarpulse</string>
+    <string name="widget_description">Top three headlines with the Nepali date</string>
+    <string name="widget_empty">Open Khabar Pulse for the latest headlines</string>
 </resources>

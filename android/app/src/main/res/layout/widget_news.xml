@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/app_name"
+            android:textColor="#DC143C"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#B8B8C0"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <TextView android:id="@+id/widget_title_1" style="@style/WidgetTitle" />
+    <TextView android:id="@+id/widget_source_1" style="@style/WidgetSource" />
+    <TextView android:id="@+id/widget_title_2" style="@style/WidgetTitle" />
+    <TextView android:id="@+id/widget_source_2" style="@style/WidgetSource" />
+    <TextView android:id="@+id/widget_title_3" style="@style/WidgetTitle" />
+    <TextView android:id="@+id/widget_source_3" style="@style/WidgetSource" />
+</LinearLayout>
