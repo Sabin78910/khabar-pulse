@@ -3,7 +3,8 @@ import { clusterArticles, fingerprint, similarity, tokenize } from "./cluster.ts
 import { canonicalUrl, dedupe, hashId, normalizeItem, parseDate, undatedTime } from "./normalize.ts";
 import { buildNews, fetchAll, filterClusters, knownTimesFrom, parseCategory, parseLang } from "./pipeline.ts";
 import { pickLead, scoreCluster, toCluster } from "./rank.ts";
-import type { Article, RawItem, Source } from "./types.ts";
+import { SOURCES } from "../config/sources.ts";
+import { CATEGORIES, type Article, type RawItem, type Source } from "./types.ts";
 
 const NOW = Date.UTC(2026, 9, 10, 12, 0, 0);
 const HOUR = 3600_000;
@@ -261,6 +262,33 @@ describe("pipeline", () => {
     expect(filterClusters(all, { lang: "ne" }).map((c) => c.id)).toEqual(["n"]);
     expect(filterClusters(all, { q: "BUDGET nepal" }).map((c) => c.id)).toEqual([base.id]);
     expect(filterClusters(all, { q: "बजेट" }).map((c) => c.id)).toEqual(["n"]);
+  });
+
+  it("routes AI-tagged clusters to the AI tab only", () => {
+    const base = toCluster([art("Model released", { region: "world", topic: "ai" })], NOW, (x) => x);
+    const tech = { ...base, items: [], id: "t", topic: "tech" as const };
+    expect(filterClusters([base, tech], { cat: "ai" }).map((c) => c.id)).toEqual([base.id]);
+    expect(filterClusters([base, tech], { cat: "tech" }).map((c) => c.id)).toEqual(["t"]);
+    expect(filterClusters([base, tech], { cat: "world" }).map((c) => c.id)).toEqual([base.id, "t"]);
+  });
+
+  it("keeps the AI topic of an AI source whatever the article tags say", () => {
+    const ai = src({ region: "world", topic: "ai" });
+    expect(categorize(ai, ["Sports"], "https://a.example/x", "x")).toEqual({ region: "world", topic: "ai" });
+    expect(categorize(ai, ["Politics"], "https://a.example/x", "x").topic).toBe("ai");
+  });
+
+  it("orders tabs Top, Nepal, World, AI, then the rest", () => {
+    expect(CATEGORIES.slice(0, 4)).toEqual(["top", "nepal", "world", "ai"]);
+    expect([...CATEGORIES].sort()).toEqual(["ai", "business", "entertainment", "nepal", "sports", "tech", "top", "world"]);
+    expect(parseCategory("ai")).toBe("ai");
+  });
+
+  it("lists AI sources as world feeds with unique ids", () => {
+    const ai = SOURCES.filter((s) => s.topic === "ai");
+    expect(ai.length).toBeGreaterThanOrEqual(5);
+    expect(ai.every((s) => s.region === "world" && s.lang === "en")).toBe(true);
+    expect(new Set(SOURCES.map((s) => s.id)).size).toBe(SOURCES.length);
   });
 
   it("parses query parameters defensively", () => {

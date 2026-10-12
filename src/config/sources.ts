@@ -54,4 +54,14 @@ export const SOURCES: Source[] = [
   { id: "guardian-sport", name: "The Guardian", feed: "https://www.theguardian.com/sport/rss", site: "https://www.theguardian.com", lang: "en", region: "world", topic: "sports" },
   { id: "espncricinfo", name: "ESPNcricinfo", feed: "https://www.espncricinfo.com/rss/content/story/feeds/0.xml", site: "https://www.espncricinfo.com", lang: "en", region: "world", topic: "sports" },
   { id: "bbc-entertainment", name: "BBC News", feed: "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml", site: "https://www.bbc.com/news", lang: "en", region: "world", topic: "entertainment" },
+
+  // Artificial intelligence (feeds checked with curl on 12 Oct 2026; arXiv cs.AI skipped as too high volume,
+  // VentureBeat returned 429 and Anthropic has no RSS feed)
+  { id: "techcrunch-ai", name: "TechCrunch", feed: "https://techcrunch.com/category/artificial-intelligence/feed/", site: "https://techcrunch.com", lang: "en", region: "world", topic: "ai" },
+  { id: "verge-ai", name: "The Verge", feed: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", site: "https://www.theverge.com", lang: "en", region: "world", topic: "ai" },
+  { id: "arstechnica-ai", name: "Ars Technica", feed: "https://arstechnica.com/ai/feed/", site: "https://arstechnica.com", lang: "en", region: "world", topic: "ai" },
+  { id: "mit-tr-ai", name: "MIT Technology Review", feed: "https://www.technologyreview.com/topic/artificial-intelligence/feed", site: "https://www.technologyreview.com", lang: "en", region: "world", topic: "ai" },
+  { id: "google-ai", name: "Google AI Blog", feed: "https://blog.google/technology/ai/rss/", site: "https://blog.google", lang: "en", region: "world", topic: "ai" },
+  { id: "openai", name: "OpenAI", feed: "https://openai.com/news/rss.xml", site: "https://openai.com", lang: "en", region: "world", topic: "ai" },
+  { id: "huggingface", name: "Hugging Face", feed: "https://huggingface.co/blog/feed.xml", site: "https://huggingface.co", lang: "en", region: "world", topic: "ai" },
 ];

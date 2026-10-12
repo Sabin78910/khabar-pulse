@@ -6,7 +6,7 @@ export type UiLang = "en" | "ne";
 const en = {
   appName: "Khabar Pulse",
   tagline: "Nepal and the world, in one clean feed",
-  tabs: { top: "Top", nepal: "Nepal", world: "World", business: "Business", sports: "Sports", tech: "Tech", entertainment: "Entertainment" } as Record<Category, string>,
+  tabs: { top: "Top", nepal: "Nepal", world: "World", ai: "AI", business: "Business", sports: "Sports", tech: "Tech", entertainment: "Entertainment" } as Record<Category, string>,
   briefing: "Today in 60 seconds",
   briefingHint: "The 8 biggest stories, one swipe each",
   close: "Close",
@@ -51,7 +51,7 @@ export type Strings = typeof en;
 const ne: Strings = {
   appName: "खबर पल्स",
   tagline: "नेपाल र विश्व, एउटै सफा फिडमा",
-  tabs: { top: "मुख्य", nepal: "नेपाल", world: "विश्व", business: "अर्थ", sports: "खेलकुद", tech: "प्रविधि", entertainment: "मनोरञ्जन" },
+  tabs: { top: "मुख्य", nepal: "नेपाल", world: "विश्व", ai: "एआई", business: "अर्थ", sports: "खेलकुद", tech: "प्रविधि", entertainment: "मनोरञ्जन" },
   briefing: "आज ६० सेकेन्डमा",
   briefingHint: "आजका ८ ठूला खबर, एक-एक स्वाइपमा",
   close: "बन्द",
