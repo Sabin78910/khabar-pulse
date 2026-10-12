@@ -7,6 +7,8 @@ import { bsFromTimestamp, formatBs, nepalWeekday } from "./lib/bs.ts";
 import { pickBriefing } from "./lib/briefing.ts";
 import { t, type UiLang } from "./lib/i18n.ts";
 import { isNative, openArticle } from "./lib/open.ts";
+import { Licensing } from "./components/Licensing.tsx";
+import { isLicensingHash, LICENSING_HASH } from "./lib/licensing.ts";
 import { KEYS, readJson, writeJson } from "./lib/storage.ts";
 import { EMPTY_STREAK, liveStreak, parseStreak, recordRead, type Streak } from "./lib/streak.ts";
 import { dayKey, relativeTime } from "./lib/time.ts";
@@ -38,6 +40,7 @@ export default function App() {
   const [refreshing, setRefreshing] = useState(false);
   const [offline, setOffline] = useState(() => typeof navigator !== "undefined" && navigator.onLine === false);
   const [cat, setCat] = useState<Category>("top");
+  const [licensing, setLicensing] = useState(() => isLicensingHash(window.location.hash));
   const [view, setView] = useState<"feed" | "saved">("feed");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -60,6 +63,11 @@ export default function App() {
     document.documentElement.lang = lang;
     writeJson(KEYS.lang, lang);
   }, [lang]);
+  useEffect(() => {
+    const onHash = () => setLicensing(isLicensingHash(window.location.hash));
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
   useEffect(() => writeJson(KEYS.contentLang, contentLang), [contentLang]);
   useEffect(() => writeJson(KEYS.bookmarks, bookmarks), [bookmarks]);
   useEffect(() => writeJson(KEYS.streak, streak), [streak]);
@@ -258,7 +266,9 @@ export default function App() {
       <main id="feed" className="feed">
         {offline && <p className="notice">{s.offline}</p>}
 
-        {view === "saved" ? (
+        {licensing ? (
+          <Licensing lang={lang} onBack={() => (window.location.hash = "")} />
+        ) : view === "saved" ? (
           <section aria-label={s.bookmarks}>
             <h2 className="section-title">{s.bookmarks}</h2>
             {bookmarks.length === 0 ? (
@@ -371,6 +381,8 @@ export default function App() {
           <a href="https://sabin78910.github.io/privacy-policy/" target="_blank" rel="noopener noreferrer">
             {s.privacy}
           </a>{" "}
+          · <a href={LICENSING_HASH}>{s.licensing}</a>
+          {" "}
           · <a href="https://github.com/Sabin78910/khabar-pulse" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
       </footer>

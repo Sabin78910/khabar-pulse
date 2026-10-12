@@ -877,3 +877,15 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+.licensing {
+  max-width: 62ch;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.licensing h3 {
+  margin: 1.4em 0 0.4em;
+}
+.licensing a {
+  color: var(--crimson);
+}

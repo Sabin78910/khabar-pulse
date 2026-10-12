@@ -43,6 +43,7 @@ const en = {
   install: "Install app",
   legal: "Headlines and short snippets only. Every story opens on the publisher's site.",
   privacy: "Privacy",
+  licensing: "Licensing",
   opensPublisher: "Opens on the publisher's site",
 };
 
@@ -88,6 +89,7 @@ const ne: Strings = {
   install: "एप इन्स्टल गर्नुहोस्",
   legal: "शीर्षक र छोटो अंश मात्र। हरेक खबर प्रकाशककै साइटमा खुल्छ।",
   privacy: "गोपनीयता",
+  licensing: "इजाजत",
   opensPublisher: "प्रकाशकको साइटमा खुल्छ",
 };
 

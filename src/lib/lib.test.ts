@@ -192,3 +192,13 @@ describe("i18n and safety", () => {
     expect(safeUrl("not a url")).toBeNull();
   });
 });
+
+import { isLicensingHash } from "./licensing.ts";
+describe("isLicensingHash", () => {
+  it("matches the licensing route only", () => {
+    expect(isLicensingHash("#/licensing")).toBe(true);
+    expect(isLicensingHash("#/licensing/")).toBe(true);
+    expect(isLicensingHash("#feed")).toBe(false);
+    expect(isLicensingHash("")).toBe(false);
+  });
+});
