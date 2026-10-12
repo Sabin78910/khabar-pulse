@@ -270,3 +270,15 @@ describe("pipeline", () => {
     expect(parseLang(null)).toBe("all");
   });
 });
+
+describe("snippet licensing limit", () => {
+  it("never lets a snippet exceed 200 characters, in any script", () => {
+    const inputs = ["word ".repeat(500), "समाचार ".repeat(300), "x".repeat(5000), "<p>" + "a b ".repeat(400) + "</p>"];
+    for (const description of inputs) {
+      for (const field of ["description", "content"] as const) {
+        const a = normalizeItem(raw({ [field]: description }), src(), { now: NOW })!;
+        expect(a.snippet.length).toBeLessThanOrEqual(200);
+      }
+    }
+  });
+});

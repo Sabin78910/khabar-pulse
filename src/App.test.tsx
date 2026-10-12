@@ -89,4 +89,14 @@ describe("App", () => {
     render(<App />);
     expect(await screen.findByText(/Could not load news/)).toBeInTheDocument();
   });
+
+  it("shows the licensing page from the footer and returns to the feed", async () => {
+    render(<App />);
+    await screen.findByText("Gagan Thapa elected Nepali Congress president");
+    await userEvent.click(screen.getByRole("link", { name: "Licensing" }));
+    expect(await screen.findByRole("heading", { name: /licensing and attribution/i })).toBeInTheDocument();
+    expect(screen.getByText(/at most 200 characters/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /back to news/i }));
+    await waitFor(() => expect(screen.queryByRole("heading", { name: /licensing and attribution/i })).toBeNull());
+  });
 });
