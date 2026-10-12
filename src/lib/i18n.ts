@@ -44,6 +44,19 @@ const en = {
   legal: "Headlines and short snippets only. Every story opens on the publisher's site.",
   privacy: "Privacy",
   opensPublisher: "Opens on the publisher's site",
+  forexTitle: "Today's exchange rates",
+  forexBuy: "Buy",
+  forexSell: "Sell",
+  forexPer: (unit: number) => `per ${unit}`,
+  forexShowAll: "Show all",
+  forexShowLess: "Show fewer",
+  forexConvert: "Convert to NPR",
+  forexAmount: "Amount",
+  forexCurrency: "Currency",
+  forexResult: "Nepali rupees (buy rate)",
+  forexSource: (date: string) => `Source: Nepal Rastra Bank · published ${date}. Bank rates may differ.`,
+  forexStale: "Latest rates available; today's are not published yet.",
+  forexUnavailable: "Exchange rates are unavailable right now.",
 };
 
 export type Strings = typeof en;
@@ -89,6 +102,19 @@ const ne: Strings = {
   legal: "शीर्षक र छोटो अंश मात्र। हरेक खबर प्रकाशककै साइटमा खुल्छ।",
   privacy: "गोपनीयता",
   opensPublisher: "प्रकाशकको साइटमा खुल्छ",
+  forexTitle: "आजको विनिमय दर",
+  forexBuy: "खरिद",
+  forexSell: "बिक्री",
+  forexPer: (unit: number) => `प्रति ${toNepaliDigits(unit)}`,
+  forexShowAll: "सबै हेर्नुहोस्",
+  forexShowLess: "कम देखाउनुहोस्",
+  forexConvert: "रुपैयाँमा बदल्नुहोस्",
+  forexAmount: "रकम",
+  forexCurrency: "मुद्रा",
+  forexResult: "नेपाली रुपैयाँ (खरिद दर)",
+  forexSource: (date: string) => `स्रोत: नेपाल राष्ट्र बैंक · ${toNepaliDigits(date)} मा प्रकाशित। बैंकका दर फरक हुन सक्छन्।`,
+  forexStale: "आजको दर अझै प्रकाशित भएको छैन; पछिल्लो उपलब्ध दर देखाइँदै।",
+  forexUnavailable: "विनिमय दर अहिले उपलब्ध छैन।",
 };
 
 export const STRINGS: Record<UiLang, Strings> = { en, ne };
