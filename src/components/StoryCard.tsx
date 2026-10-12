@@ -49,7 +49,17 @@ export function StoryCard({ cluster: c, lead, now, lang, s, sourceName, saved, o
       >
         {c.image && imgOk && (
           <div className="story__media">
-            <img src={c.image} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImgOk(false)} />
+            <img
+              src={c.image}
+              alt=""
+              width={lead ? 640 : 96}
+              height={lead ? 360 : 96}
+              loading={lead ? "eager" : "lazy"}
+              fetchPriority={lead ? "high" : "auto"}
+              decoding="async"
+              referrerPolicy="no-referrer"
+              onError={() => setImgOk(false)}
+            />
           </div>
         )}
         <div className="story__body">

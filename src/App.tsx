@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Briefing } from "./components/Briefing.tsx";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BookmarkIcon, StoryCard, StorySkeleton } from "./components/StoryCard.tsx";
 import { isPayload, loadNews, newsEndpoints } from "./lib/api.ts";
 import { parseBookmarks, toggleBookmark, type Bookmark } from "./lib/bookmarks.ts";
@@ -14,6 +13,8 @@ import { useInstallPrompt } from "./install.ts";
 import { filterClusters } from "./pipeline/pipeline.ts";
 import { toNepaliDigits } from "./pipeline/text.ts";
 import { CATEGORIES, type Category, type Cluster, type NewsPayload } from "./pipeline/types.ts";
+
+const Briefing = lazy(() => import("./components/Briefing.tsx").then((m) => ({ default: m.Briefing })));
 
 type Theme = "dark" | "light";
 type ContentLang = "all" | "ne" | "en";
@@ -392,7 +393,9 @@ export default function App() {
       )}
 
       {briefingOpen && (
-        <Briefing stories={briefing} now={now} lang={lang} s={s} sourceName={sourceName} onOpen={onOpen} onClose={() => setBriefingOpen(false)} />
+        <Suspense fallback={null}>
+          <Briefing stories={briefing} now={now} lang={lang} s={s} sourceName={sourceName} onOpen={onOpen} onClose={() => setBriefingOpen(false)} />
+        </Suspense>
       )}
     </div>
   );
